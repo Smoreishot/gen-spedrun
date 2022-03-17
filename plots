@@ -1,0 +1,55 @@
+command ploty [<string>]:
+	trigger:
+		if arg-1 is "home":
+			if {plots::%player's uuid%::home} is set:
+				teleport player to {plots::%player's uuid%::home}
+				send "welcome home bitch"
+			else:
+				send "&cyou dont gott a plot dipshit"
+		if arg-1 is "create":
+			if {plots::%player's uuid%::home} is set:
+				send "You've got a plot."
+			else:
+				if {plot} is not set:
+					set {plot} to "1,0"
+				if {plots::open::*} is set:
+					set {_ok} to size of {plots::open::*}
+					create full bound with id (player's uuid) within {plots::open::%{_ok}%::coord1} and {plots::open::%{_ok}%::coord2}
+					set {plots::%player's uuid%::home} to highest solid block at {plots::open::%{_ok}%::home}
+					set {plots::%player's uuid%::coord1} to {plots::open::%{_ok}%::coord1}
+					set {plots::%player's uuid%::coord2} to {plots::open::%{_ok}%::coord2}
+					teleport player to {plots::%player's uuid%::home}
+				else:
+					set {_ok::*} to split {plot} by ","
+					set {_x} to {_ok::1} parsed as an integer
+					set {_z} to {_ok::2} parsed as an integer
+					set {_x1} to {_x} * 60
+					set {_x2} to {_x1} - 40
+					set {_z1} to {_z} * 60
+					set {_z2} to {_z1} - 40
+					create full bound with id (player's uuid) within location({_x1}, 0, {_z1}, world "world") and location({_x2}, 0, {_z2}, world "world")
+					set {plots::%player's uuid%::home} to highest solid block at location({_x1} - 20, 0, {_z1} - 20, world "world")
+					set {plots::%player's uuid%::coord1} to location({_x1}, 1, {_z1}, world "world")
+					set {plots::%player's uuid%::coord2} to location({_x2}, 255, {_z2}, world "world")
+					teleport player to {plots::%player's uuid%::home}
+					if {_x} = {plotsMaximumXvalue}:
+						add 1 to {_z}
+					set {plot} to "%{_x} + 1, {_z}%"
+		if arg-1 is "delete":
+			send "&7deleting plot..."
+			set all blocks within {plots::%player's uuid%::coord1} and {plots::%player's uuid%::coord2} where [input is not air] to air
+			set all blocks within {plots::%player's uuid%::coord1} and location(x coordinate of {plots::%player's uuid%::coord2}, 1, z coordinate of {plots::%player's uuid%::coord2}, world "world") to bedrock
+			set {_ok} to size of {plots::open::*}
+			set {plots::open::%{_ok}%::coord1} to {plots::%player's uuid%::coord1}
+			set {plots::open::%{_ok}%::coord2} to {plots::%player's uuid%::coord2}
+			set {plots::open::%{_ok}%::home} to location(x coordinate of {plots::open::coord1} - 20, 0, z coordinate of {plots::open::coord1} -20, world "world")
+			delete {plots::%player's uuid%::*}
+			wait 5 ticks
+			delete bound with id (player's uuid)
+			send "&cplot deleted!"
+
+on bound enter:
+	send "&centering %event-bound%"
+
+on bound exit:
+	send "&cexiting %event-bound%"
